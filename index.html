@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <title>SRI 性心理压抑量表</title>
+    <meta name="color-scheme" content="light dark" />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #1f2937;
+        --muted: #6b7280;
+        --brand: #2563eb;
+        --brand-weak: #dbeafe;
+        --card: #f8fafc;
+        --danger: #ef4444;
+        --ok: #16a34a;
+        --border: #e5e7eb;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0b0f14;
+          --fg: #e5e7eb;
+          --muted: #94a3b8;
+          --brand: #60a5fa;
+          --brand-weak: #0b1e33;
+          --card: #0f172a;
+          --danger: #f87171;
+          --ok: #4ade80;
+          --border: #1f2937;
+        }
+      }
+
+      html,
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial,
+          sans-serif;
+        margin: 0;
+      }
+
+      .container {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: clamp(12px, 2vw, 24px);
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        backdrop-filter: saturate(1.1) blur(8px);
+        background: color-mix(in oklab, var(--bg), transparent 10%);
+        border-bottom: 1px solid var(--border);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 0;
+      }
+      .brand .logo {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--brand), #22c55e);
+        display: inline-block;
+      }
+      .progress {
+        height: 6px;
+        background: var(--brand-weak);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .bar {
+        height: 100%;
+        width: 0%;
+        background: var(--brand);
+        transition: width 0.25s;
+      }
+      .notice {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+        margin-block: 14px;
+      }
+      h1 {
+        font-size: 1.15rem;
+        margin: 6px 0;
+      }
+      h2 {
+        font-size: 1.05rem;
+        margin: 0 0 8px 0;
+      }
+      .meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        font-size: 0.9rem;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .items {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .q {
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--bg);
+      }
+      .q-title {
+        font-weight: 600;
+        line-height: 1.45;
+      }
+      .q-example {
+        color: var(--muted);
+        margin-top: 6px;
+        font-size: 0.92rem;
+      }
+
+      .scale {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .scale input {
+        display: none;
+      }
+      .scale label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 6px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        user-select: none;
+        background: var(--bg);
+      }
+      .scale label small {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      .scale input:checked + label {
+        outline: 2px solid var(--brand);
+        border-color: var(--brand);
+      }
+      .req {
+        color: var(--danger);
+        font-size: 0.88rem;
+        display: none;
+        margin-top: 6px;
+      }
+
+      .section-nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 10px 0;
+      }
+      .pill {
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        cursor: pointer;
+        background: var(--bg);
+      }
+      .pill.active,
+      .pill:hover {
+        border-color: var(--brand);
+        color: var(--brand);
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        margin-top: 10px;
+      }
+      button {
+        appearance: none;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 16px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .primary {
+        background: var(--brand);
+        color: #fff;
+      }
+      .ghost {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--fg);
+      }
+      .danger {
+        background: var(--danger);
+        color: #fff;
+      }
+      .ok {
+        background: var(--ok);
+        color: #002;
+      }
+
+      .tag {
+        padding: 0.2em 0.5em;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .footer {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 24px 0 40px;
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        background: color-mix(in oklab, var(--bg), black 20%);
+        display: none;
+        overflow: auto;
+      }
+      .overlay.show {
+        display: block;
+      }
+      .sheet {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: clamp(14px, 3vw, 28px);
+      }
+      .result-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+        margin-block: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      @media (min-width: 720px) {
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .overlay-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .overlay-header .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-left: auto;
+      }
+      @media (max-width: 720px) {
+        .overlay-header .actions {
+          order: 2;
+          flex-basis: 100%;
+          justify-content: flex-start;
+          margin-left: 0;
+        }
+      }
+
+      .meter {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .meter .label {
+        min-width: 9em;
+        font-weight: 600;
+      }
+      .barwrap {
+        flex: 0 0 clamp(260px, 45vw, 360px);
+        width: clamp(260px, 45vw, 360px);
+        height: 16px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .fill {
+        height: 100%;
+        width: 0%;
+        background: var(--ok);
+        transition: width 0.6s;
+      }
+      .score {
+        min-width: 3.5em;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      @media (max-width: 480px) {
+        .meter .label {
+          min-width: unset;
+          flex: 1 1 100%;
+        }
+        .barwrap {
+          flex: 1 1 100%;
+          width: 100%;
+        }
+        .score {
+          margin-left: auto;
+        }
+      }
+
+      .legend {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .chip {
+        width: 14px;
+        height: 10px;
+        border-radius: 3px;
+        display: inline-block;
+      }
+      .legend .low {
+        background: hsl(120 70% 40%);
+      }
+      .legend .mid {
+        background: hsl(45 85% 50%);
+      }
+      .legend .high {
+        background: hsl(0 75% 50%);
+      }
+
+      .overlay-header {
+        margin-bottom: 12px;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="brand">
+          <div>
+            <div><strong>性心理压抑量表</strong>（A–F，共30题）</div>
+            <div class="notice">
+              1=非常不同意/从不 …
+              5=非常同意/总是。示例仅为理解提示，与计分无关。
+            </div>
+          </div>
+        </div>
+        <div class="progress" aria-label="完成进度">
+          <div class="bar" id="bar"></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- 同意闸门 -->
+      <section class="card" id="gate">
+        <h1>须知</h1>
+        <ul>
+          <li>全部题目为必答项。</li>
+          <li>网页为静态离线页面，不收集任何数据。</li>
+          <li>勾选以下两个选项方可进入量表。</li>
+        </ul>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap">
+          <label class="flex"
+            ><input type="checkbox" id="age18" /> 我已符合在地成年标准</label
+          >
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap">
+          <label class="flex"
+            ><input type="checkbox" id="consent" />
+            我了解该网页不收集任何数据</label
+          >
+        </div>
+        <div class="actions">
+          <button class="primary" id="startBtn" disabled>开始作答</button>
+        </div>
+      </section>
+
+      <!-- 导航 -->
+      <section class="section-nav card hidden" id="nav">
+        <span class="pill active" data-section="A">A 性罪疚</span>
+        <span class="pill" data-section="B">B 情境性抑制</span>
+        <span class="pill" data-section="C">C 情色恐惧</span>
+        <span class="pill" data-section="D">D 价值保守</span>
+        <span class="pill" data-section="E">E 性幻想压抑</span>
+        <span class="pill" data-section="F">F 性行为回避</span>
+      </section>
+
+      <!-- 表单容器 -->
+      <form id="form" class="hidden" novalidate></form>
+
+      <p class="footer">
+        06/10/2025
+        研究用途示例，仅供娱乐。本页不收集任何信息，所有计算在本地浏览器完成。
+      </p>
+    </main>
+
+    <!-- 结果覆盖层 -->
+    <section class="overlay" id="overlay" aria-modal="true" role="dialog">
+      <div class="sheet">
+        <div class="overlay-header">
+          <div>
+            <h1 style="margin: 0">量表结果（0–100）</h1>
+            <div class="legend">
+              <span class="chip low"></span>低（绿）
+              <span class="chip mid"></span>中（黄）
+              <span class="chip high"></span>高（红） — 分数越高=压抑越高
+            </div>
+          </div>
+          <div class="actions">
+            <button class="ghost" id="printBtn">打印/保存PDF</button>
+            <button class="ghost" id="csvBtn">导出 CSV</button>
+            <button class="ghost" id="jsonBtn">导出 JSON</button>
+            <button class="danger" id="closeBtn">关闭</button>
+          </div>
+        </div>
+
+        <div class="result-card">
+          <h2>总分与领域分</h2>
+          <div id="summaryMeters" class="grid"></div>
+        </div>
+
+        <div class="result-card">
+          <h2>子量表</h2>
+          <div id="subMeters" class="grid"></div>
+        </div>
+
+        <div class="result-card">
+          <details>
+            <summary><strong>如何解读分数？</strong></summary>
+            <div class="q-example"></div>
+            <div class="q-example">
+              <p>
+                这份量表的分数都是0–100，数字越高，说明你在性相关的想法或行为上越容易出现紧张、压抑或回避。这并不是“好”或“坏”的标签，只是一个帮你了解自己现阶段状态的小工具。
+                <br />该量表纯属本人臆想产生，没有实验数据支撑，没有任何信度/效度/等价性验证，所以采用了保守的子量表等权积分方式而非域等权。
+                <br />本网页的原始码地址：<a href="https://github.com/puff-dayo/sri">GitHub</a>
+              </p>
+              <p><strong>推荐阅读</strong><br /></p>
+
+              <ol>
+                <li>
+                  <strong>性罪疚</strong><br />
+                  <a
+                    href="https://www.researchgate.net/publication/43356024_The_Revised_Mosher_Sex-Guilt_Scale_Its_Psychometric_Properties_and_a_Proposed_Ten-Item_Version"
+                    target="_blank"
+                    rel="noopener"
+                    >ResearchGate</a
+                  >
+                </li>
+
+                <li>
+                  <strong>情色恐惧—亲和</strong>：<br />
+                  <a
+                    href="https://www.researchgate.net/publication/369088021_The_Sexual_Opinion_Survey"
+                    target="_blank"
+                    rel="noopener"
+                    >ResearchGate</a
+                  >
+                  ；延伸讨论
+                  <a
+                    href="https://couples-research.com/wp-content/uploads/2021/10/Hangen-Rogge-2021-SPN-scale.pdf"
+                    target="_blank"
+                    rel="noopener"
+                    >Hangen &amp; Rogge, 2021</a
+                  >
+                </li>
+
+                <li>
+                  <strong>兴奋 / 抑制</strong><br />
+                  <a
+                    href="https://www.researchgate.net/profile/Erick-Janssen/publication/273126136_The_sexual_inhibitionsexual_excitation_scales_-_short_form_SISSES-SF/links/589c61bfa6fdcc754178313b/The-sexual-inhibition-sexual-excitation-scales-short-form-SIS-SES-SF.pdf"
+                    target="_blank"
+                    rel="noopener"
+                    >SIS/SES-SF</a
+                  >
+                </li>
+                <li>
+                  <p>
+                    <strong>幻想与接纳</strong><br />
+                    <a
+                      href="https://reunido.uniovi.es/index.php/PST/article/download/17044/14243/45367"
+                      target="_blank"
+                      rel="noopener"
+                      >Hurlbert Index of Sexual Fantasy</a
+                    >
+                  </p>
+                </li>
+              </ol>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+    <script src="./questions.js"></script>
+    <script>
+      const { SECTIONS } = window.SRI_QUESTIONS;
+      const SCALES = {
+        agree: [
+          { v: 1, t: "非常不同意" },
+          { v: 2, t: "不同意" },
+          { v: 3, t: "不确定" },
+          { v: 4, t: "同意" },
+          { v: 5, t: "非常同意" },
+        ],
+        freq: [
+          { v: 1, t: "从不" },
+          { v: 2, t: "很少" },
+          { v: 3, t: "有时" },
+          { v: 4, t: "经常" },
+          { v: 5, t: "总是/几乎总是" },
+        ],
+      };
+
+      let answeredCount = 0;
+      const totalItems = SECTIONS.reduce((n, s) => n + s.items.length, 0);
+      const bar = document.getElementById("bar");
+      const startBtn = document.getElementById("startBtn");
+      const gate = document.getElementById("gate");
+      const nav = document.getElementById("nav");
+      const form = document.getElementById("form");
+      const overlay = document.getElementById("overlay");
+
+      ["age18", "consent"].forEach((id) => {
+        document.getElementById(id).addEventListener("change", () => {
+          startBtn.disabled = !["age18", "consent"].every(
+            (i) => document.getElementById(i).checked
+          );
+        });
+      });
+      startBtn.addEventListener("click", () => {
+        gate.classList.add("hidden");
+        nav.classList.remove("hidden");
+        form.classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      function render() {
+        const frag = document.createDocumentFragment();
+        SECTIONS.forEach((sec, si) => {
+          const card = document.createElement("section");
+          card.className = "card";
+          card.id = `sec-${sec.key}`;
+          if (si !== 0) card.classList.add("hidden");
+
+          const h = document.createElement("h1");
+          h.textContent = sec.title;
+          card.appendChild(h);
+
+          const meta = document.createElement("div");
+          meta.className = "meta";
+          meta.innerHTML = `<span class="tag">${sec.desc}</span><span class="tag">共 ${sec.items.length} 题</span>`;
+          card.appendChild(meta);
+
+          const items = document.createElement("div");
+          items.className = "items";
+
+          sec.items.forEach((q) => {
+            const div = document.createElement("div");
+            div.className = "q";
+            div.dataset.qid = q.id;
+            div.innerHTML = `
+        <div class="q-title">${q.id}．${q.text}</div>
+        ${q.ex ? `<div class="q-example">例：${q.ex}</div>` : ``}
+        <div class="scale" role="radiogroup" aria-label="${q.id}">
+          ${SCALES[sec.scale]
+            .map(
+              (s) =>
+                `<input type="radio" name="${q.id}" id="${q.id}_${s.v}" value="${s.v}">
+             <label for="${q.id}_${s.v}"><div>${s.v}</div><small>${s.t}</small></label>`
+            )
+            .join("")}
+        </div>
+        <div class="req">请作答此题</div>
+      `;
+            items.appendChild(div);
+          });
+
+          card.appendChild(items);
+
+          const actions = document.createElement("div");
+          actions.className = "actions";
+          if (si > 0) {
+            const prev = document.createElement("button");
+            prev.type = "button";
+            prev.className = "ghost";
+            prev.textContent = "上一部分";
+            prev.addEventListener("click", () =>
+              showSection(SECTIONS[si - 1].key)
+            );
+            actions.appendChild(prev);
+          }
+          if (si < SECTIONS.length - 1) {
+            const next = document.createElement("button");
+            next.type = "button";
+            next.className = "primary";
+            next.textContent = "下一部分";
+            next.addEventListener("click", () => {
+              if (validateSection(sec.key)) showSection(SECTIONS[si + 1].key);
+            });
+            actions.appendChild(next);
+          } else {
+            const submit = document.createElement("button");
+            submit.type = "button";
+            submit.className = "ok";
+            submit.textContent = "提交并查看结果";
+            submit.addEventListener("click", handleSubmit);
+            actions.appendChild(submit);
+          }
+          card.appendChild(actions);
+
+          frag.appendChild(card);
+        });
+        form.appendChild(frag);
+
+        form.addEventListener("change", (e) => {
+          if (e.target.name) {
+            updateProgress();
+            const wrap = e.target.closest(".q");
+            if (wrap) wrap.querySelector(".req").style.display = "none";
+          }
+        });
+
+        document.querySelectorAll(".pill").forEach((p) => {
+          p.addEventListener("click", () => showSection(p.dataset.section));
+        });
+
+        updateProgress();
+      }
+      render();
+
+      function showSection(key) {
+        document
+          .querySelectorAll(".pill")
+          .forEach((p) =>
+            p.classList.toggle("active", p.dataset.section === key)
+          );
+        SECTIONS.forEach((sec) => {
+          const el = document.getElementById(`sec-${sec.key}`);
+          if (sec.key === key) el.classList.remove("hidden");
+          else el.classList.add("hidden");
+        });
+        window.scrollTo({
+          top: document.querySelector("header").offsetHeight,
+          behavior: "smooth",
+        });
+      }
+
+      function updateProgress() {
+        const answered = Array.from(form.querySelectorAll(".q")).filter((q) => {
+          return q.querySelector("input[type=radio]:checked");
+        }).length;
+        answeredCount = answered;
+        const pct = Math.round((100 * answered) / totalItems);
+        bar.style.width = pct + "%";
+        bar.setAttribute("aria-valuenow", pct);
+      }
+
+      function validateSection(key) {
+        const card = document.getElementById(`sec-${key}`);
+        const questions = card.querySelectorAll(".q");
+        for (const q of questions) {
+          const picked = q.querySelector("input[type=radio]:checked");
+          if (!picked) {
+            q.querySelector(".req").style.display = "block";
+            q.scrollIntoView({ behavior: "smooth", block: "center" });
+            q.focus?.();
+            return false;
+          }
+        }
+        return true;
+      }
+      function validateAll() {
+        for (const s of SECTIONS) {
+          if (!validateSection(s.key)) return false;
+        }
+        return true;
+      }
+
+      function colorByPct(p) {
+        const hue = 120 - p * 1.2;
+        return `hsl(${hue} 75% 45%)`;
+      }
+
+      function meterRow(label, pct, container) {
+        const wrap = document.createElement("div");
+        wrap.className = "meter";
+        wrap.innerHTML = `
+    <div class="label">${label}</div>
+    <div class="barwrap"><div class="fill"></div></div>
+    <div class="score">${pct.toFixed(0)}</div>
+  `;
+        const fill = wrap.querySelector(".fill");
+        fill.style.width = pct + "%";
+        fill.style.background = colorByPct(pct);
+        container.appendChild(wrap);
+      }
+
+      function handleSubmit() {
+        if (!validateAll()) return;
+
+        const resp = {};
+        SECTIONS.forEach((sec) => {
+          sec.items.forEach((q) => {
+            const v = parseInt(
+              form.querySelector(`input[name="${q.id}"]:checked`).value,
+              10
+            );
+            resp[q.id] = v;
+          });
+        });
+
+        function mean(arr) {
+          return arr.reduce((a, b) => a + b, 0) / arr.length;
+        }
+        function val(qid) {
+          const v = resp[qid];
+          const meta = SECTIONS.flatMap((s) => s.items).find(
+            (x) => x.id === qid
+          );
+          return meta && meta.reverse ? 6 - v : v;
+        }
+        const to100 = (x) => Math.round(x * 20);
+        const to100_fromMean = (m) => Math.round((m - 1) * 25);
+
+        const SGm = mean(["A1", "A2", "A3", "A4", "A5"].map(val));
+        const SIm = mean(["B1", "B2", "B3", "B4", "B5"].map(val));
+        const ERm = mean(["C1", "C2", "C3", "C4", "C5"].map(val));
+        const POm = mean(["D1", "D2", "D3", "D4", "D5"].map(val));
+        const SFAm = mean(["E1", "E2", "E3", "E4", "E5"].map(val));
+        const SBAm = mean(["F1", "F2", "F3", "F4", "F5"].map(val));
+
+        const SG = to100_fromMean(SGm);
+        const SI = to100_fromMean(SIm);
+        const ER = to100_fromMean(ERm);
+        const PO = to100_fromMean(POm);
+        const SFA = to100_fromMean(SFAm);
+        const SBA = to100_fromMean(SBAm);
+
+        const Att = Math.round((SG + SI + ER + PO) / 4);
+        const Beh = Math.round((SFA + SBA) / 2);
+        const SRI = Math.round((SG + SI + ER + PO + SFA + SBA) / 6);
+
+        const summaryBox = document.getElementById("summaryMeters");
+        const subBox = document.getElementById("subMeters");
+        summaryBox.innerHTML = "";
+        subBox.innerHTML = "";
+
+        meterRow("总压抑指数（SRI）", SRI, summaryBox);
+        meterRow("观念域（SG+SI+ER+PO）", Att, summaryBox);
+        meterRow("行为域（SFA+SBA）", Beh, summaryBox);
+
+        meterRow("SG 性罪疚", SG, subBox);
+        meterRow("SI 情境性抑制", SI, subBox);
+        meterRow("ER 情色恐惧/负向态度", ER, subBox);
+        meterRow("PO 价值保守", PO, subBox);
+        meterRow("SFA 性幻想压抑", SFA, subBox);
+        meterRow("SBA 性行为回避", SBA, subBox);
+
+        const payload = {
+          timestamp: new Date().toISOString(),
+          responses_1to5: resp,
+          scores_0to100: {
+            SG,
+            SI,
+            ER,
+            PO,
+            SFA,
+            SBA,
+            Attitudinal: Att,
+            Behavioral: Beh,
+            SRI,
+          },
+        };
+
+        overlay.classList.add("show");
+        document.getElementById("closeBtn").onclick = () =>
+          overlay.classList.remove("show");
+        document.getElementById("printBtn").onclick = () => window.print();
+        document.getElementById("jsonBtn").onclick = () =>
+          download(
+            "suppressive_index.json",
+            JSON.stringify(payload, null, 2),
+            "application/json"
+          );
+        document.getElementById("csvBtn").onclick = () => {
+          const cols = [
+            ...Object.keys(resp),
+            "SG",
+            "SI",
+            "ER",
+            "PO",
+            "SFA",
+            "SBA",
+            "Attitudinal",
+            "Behavioral",
+            "SRI",
+            "timestamp",
+          ];
+          const values = [
+            ...Object.keys(resp).map((k) => resp[k]),
+            SG,
+            SI,
+            ER,
+            PO,
+            SFA,
+            SBA,
+            Att,
+            Beh,
+            SRI,
+            payload.timestamp,
+          ];
+          const csv = cols.join(",") + "\n" + values.join(",");
+          download("suppressive_index.csv", csv, "text/csv");
+        };
+      }
+
+      function download(filename, content, mime) {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          a.remove();
+        }, 0);
+      }
+    </script>
+  </body>
+</html>
